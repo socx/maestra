@@ -1,6 +1,6 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 
 import { ThemeToggle } from '../components/ThemeToggle'
 
@@ -21,7 +21,7 @@ function classNames(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default function MainLayout() {
   return (
     <div className="min-h-full bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       <Disclosure as="nav" className="bg-gray-800">
@@ -104,7 +104,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </Disclosure>
 
       <main>
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">{children}</div>
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <Outlet />
+        </div>
       </main>
     </div>
   )

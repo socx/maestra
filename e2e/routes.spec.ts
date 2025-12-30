@@ -20,3 +20,11 @@ test('routes: Home → Word List → Practice → Exercise → Help', async ({ p
   await expect(page).toHaveURL(/\/help$/)
   await expect(page.getByRole('heading', { name: 'Help' })).toBeVisible()
 })
+
+test('routes: unknown path shows 404 page', async ({ page }) => {
+  await page.goto('/definitely-not-a-real-route')
+  await expect(page.getByText('404')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
+  await page.getByRole('link', { name: 'Go back home' }).click()
+  await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible()
+})
