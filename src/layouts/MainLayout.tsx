@@ -3,6 +3,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { NavLink, Outlet } from 'react-router-dom'
 
 import { ThemeToggle } from '../components/ThemeToggle'
+import Footer from './Footer'
 
 type NavItem = {
   name: string
@@ -23,7 +24,7 @@ function classNames(...classes: Array<string | false | null | undefined>) {
 
 export default function MainLayout() {
   return (
-    <div className="min-h-full bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+    <div className="min-h-full bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 flex flex-col">
       <Disclosure as="nav" className="bg-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
@@ -103,11 +104,13 @@ export default function MainLayout() {
         </DisclosurePanel>
       </Disclosure>
 
-      <main>
+      <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }
