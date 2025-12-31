@@ -53,6 +53,7 @@ export function WordListNormalisedPage() {
 
   const [categoryFilter, setCategoryFilter] = useState<string>('All')
   const [startsWithFilter, setStartsWithFilter] = useState<string>('All')
+  const [stageFilter, setStageFilter] = useState<string>('All')
 
   const allWords = useMemo(() => {
     return (wordsData as NormalisedWord[]).filter((w) => w && w.word && w.category)
@@ -66,14 +67,19 @@ export function WordListNormalisedPage() {
     return uniqueSorted(allWords.map((w) => startsWithKey(w.word)))
   }, [allWords])
 
+  const stageOptions = useMemo(() => {
+    return uniqueSorted(allWords.map((w) => String(w.stage ?? '').trim()).filter(Boolean))
+  }, [allWords])
+
   const filteredWords = useMemo(() => {
     return allWords.filter((w) => {
       if (categoryFilter !== 'All' && w.category !== categoryFilter) return false
       const sw = startsWithKey(w.word)
       if (startsWithFilter !== 'All' && sw !== startsWithFilter) return false
+      if (stageFilter !== 'All' && String(w.stage) !== stageFilter) return false
       return true
     })
-  }, [allWords, categoryFilter, startsWithFilter])
+  }, [allWords, categoryFilter, startsWithFilter, stageFilter])
 
   const sortedWords = useMemo(() => {
     const copy = [...filteredWords]
@@ -184,6 +190,7 @@ export function WordListNormalisedPage() {
               onClick={() => {
                 setCategoryFilter('All')
                 setStartsWithFilter('All')
+                setStageFilter('All')
               }}
               className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:hover:bg-gray-900"
             >
@@ -194,7 +201,7 @@ export function WordListNormalisedPage() {
 
         {filtersOpen ? (
           <div id="word-list-filters" className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-800">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <Disclosure defaultOpen>
                 {({ open }) => (
                   <div className="rounded-md border border-gray-200 dark:border-gray-800">
@@ -277,6 +284,48 @@ export function WordListNormalisedPage() {
                             </label>
                           ))}
                         </div>
+                      </div>
+                    </Disclosure.Panel>
+                  </div>
+                )}
+              </Disclosure>
+
+              <Disclosure defaultOpen>
+                {({ open }) => (
+                  <div className="rounded-md border border-gray-200 dark:border-gray-800">
+                    <Disclosure.Button className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Stage
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{open ? 'Hide' : 'Show'}</span>
+                    </Disclosure.Button>
+                    <Disclosure.Panel className="border-t border-gray-200 px-4 py-3 dark:border-gray-800">
+                      <div className="space-y-2">
+                        <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                          <input
+                            type="radio"
+                            name="stageFilter"
+                            value="All"
+                            checked={stageFilter === 'All'}
+                            onChange={() => setStageFilter('All')}
+                            className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700"
+                          />
+                          All
+                        </label>
+                        {stageOptions.map((s) => (
+                          <label
+                            key={s}
+                            className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-200"
+                          >
+                            <input
+                              type="radio"
+                              name="stageFilter"
+                              value={s}
+                              checked={stageFilter === s}
+                              onChange={() => setStageFilter(s)}
+                              className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700"
+                            />
+                            {s}
+                          </label>
+                        ))}
                       </div>
                     </Disclosure.Panel>
                   </div>
