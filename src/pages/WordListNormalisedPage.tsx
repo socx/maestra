@@ -1,5 +1,6 @@
 import { Disclosure } from '@headlessui/react'
 import { useMemo, useState } from 'react'
+import { SpeakerWaveIcon } from '@heroicons/react/20/solid'
 
 import wordsData from '../services/data/subject-vocab-normalised.json'
 
@@ -44,6 +45,30 @@ function hashString(input: string): string {
 function wordKey(item: NormalisedWord): string {
   const parts = [item.category, item['sub-category'], item.word, item.definition, item.usage]
   return `${item.category}|${item['sub-category']}|${item.word}|${hashString(parts.join('|'))}`
+}
+
+function canSpeak(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.speechSynthesis !== 'undefined' &&
+    typeof window.SpeechSynthesisUtterance !== 'undefined'
+  )
+}
+
+function speakWord(text: string): void {
+  if (!canSpeak()) return
+
+  const trimmed = text.trim()
+  if (!trimmed) return
+
+  // Stop any existing utterances so repeated clicks behave predictably.
+  window.speechSynthesis.cancel()
+
+  const utterance = new SpeechSynthesisUtterance(trimmed)
+  utterance.rate = 0.95
+  utterance.pitch = 1
+
+  window.speechSynthesis.speak(utterance)
 }
 
 export function WordListNormalisedPage() {
@@ -390,7 +415,19 @@ export function WordListNormalisedPage() {
                     ...group.items.map((item) => (
                       <tr key={wordKey(item)} className="align-top">
                         <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {item.word}
+                          <div className="flex items-center gap-2">
+                            <span>{item.word}</span>
+                            <button
+                              type="button"
+                              onClick={() => speakWord(item.word)}
+                              disabled={!canSpeak()}
+                              className="inline-flex items-center justify-center rounded-md p-1 text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                              aria-label={`Play pronunciation for ${item.word}`}
+                              title={canSpeak() ? 'Play pronunciation' : 'Speech synthesis not supported in this browser'}
+                            >
+                              <SpeakerWaveIcon className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">{item.definition}</td>
                         <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
