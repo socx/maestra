@@ -51,6 +51,12 @@ export default function InProgressQuestion({
           type="text"
           value={currentInput}
           onChange={(e) => setCurrentInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              submitCurrent()
+            }
+          }}
           className="mt-2 block w-full rounded-md border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100"
           autoComplete="off"
           autoFocus

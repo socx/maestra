@@ -59,6 +59,15 @@ export function ExercisePage() {
   const [mode, setMode] = useState<'wizard' | 'inProgress' | 'report'>('wizard')
   const [wizardStep, setWizardStep] = useState<number>(1)
 
+  const [autoSpeak, setAutoSpeak] = useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem('exercise:autoSpeak')
+      return v === null ? true : v === '1'
+    } catch (e) {
+      return true
+    }
+  })
+
   const [selectedStage, setSelectedStage] = useState<StageOption>('General')
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [numberOfWords, setNumberOfWords] = useState<number>(10)
@@ -152,12 +161,21 @@ export function ExercisePage() {
 
   useEffect(() => {
     if (mode !== 'inProgress') return
+
+    // reset timer for the current question
     setTimeLeft(maxTimeSeconds)
+
+    // speak the word after a short delay so the user can prepare
+    let speakTimeout: number | undefined
+    if (currentItem && autoSpeak && isSpeakingAvailable) {
+      speakTimeout = window.setTimeout(() => speakWord(currentItem.word), 1000)
+    }
 
     const intervalId = window.setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           window.clearInterval(intervalId)
+          if (speakTimeout) window.clearTimeout(speakTimeout)
           submitCurrent(currentInputRef.current)
           return 0
         }
@@ -167,8 +185,9 @@ export function ExercisePage() {
 
     return () => {
       window.clearInterval(intervalId)
+      if (speakTimeout) window.clearTimeout(speakTimeout)
     }
-  }, [mode, currentIndex, maxTimeSeconds])
+  }, [mode, currentIndex, maxTimeSeconds, autoSpeak, isSpeakingAvailable])
 
   const correctCount = useMemo(() => {
     return attempts.reduce((acc, a) => {
@@ -213,6 +232,25 @@ export function ExercisePage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Exercise</h1>
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Set up your exercise, then test your spelling.</p>
+        <div className="mt-3">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+            <input
+              type="checkbox"
+              checked={autoSpeak}
+              onChange={(e) => {
+                const v = e.target.checked
+                setAutoSpeak(v)
+                try {
+                  localStorage.setItem('exercise:autoSpeak', v ? '1' : '0')
+                } catch (err) {
+                  /* ignore */
+                }
+              }}
+              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-700"
+            />
+            <span>Auto-speak (speak each word after 1s)</span>
+          </label>
+        </div>
       </div>
 
       {mode === 'wizard' ? (
