@@ -9,8 +9,10 @@ import { PracticePage } from './pages/PracticePage'
 import { WordListPage } from './pages/WordListPage'
 
 export function AppRouter() {
+  const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={base}>
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
